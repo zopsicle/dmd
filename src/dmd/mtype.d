@@ -5505,7 +5505,7 @@ extern (C++) final class TypeStruct : Type
         if (sym.sizeok != Sizeok.done)
             return new ErrorExp();
 
-        auto structelems = new Expressions(sym.nonHiddenFields());
+        auto structelems = new Expressions(sym.fields.dim - sym.isNested());
         uint offset = 0;
         foreach (j; 0 .. structelems.dim)
         {

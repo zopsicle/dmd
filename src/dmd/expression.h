@@ -783,7 +783,6 @@ class DelegateExp : public UnaExp
 public:
     FuncDeclaration *func;
     bool hasOverloads;
-    VarDeclaration *vthis2;  // container for multi-context
 
 
     void accept(Visitor *v) { v->visit(this); }
@@ -803,7 +802,6 @@ public:
     Expressions *arguments;     // function arguments
     FuncDeclaration *f;         // symbol to call
     bool directcall;            // true if a virtual call is devirtualized
-    VarDeclaration *vthis2;     // container for multi-context
 
     static CallExp *create(Loc loc, Expression *e, Expressions *exps);
     static CallExp *create(Loc loc, Expression *e);

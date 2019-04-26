@@ -1468,12 +1468,6 @@ private void escapeByValue(Expression e, EscapeByResults* er)
                     else if (dve.var.storage_class & STC.ref_)
                         escapeByRef(dve.e1, er);
                 }
-                // If it's also a nested function that is 'return scope'
-                if (fd && fd.isNested())
-                {
-                    if (tf.isreturn && tf.isscope)
-                        er.byexp.push(e);
-                }
             }
 
             /* If returning the result of a delegate call, the .ptr
@@ -1565,9 +1559,7 @@ private void escapeByRef(Expression e, EscapeByResults* er)
 
         override void visit(ThisExp e)
         {
-            if (e.var && e.var.toParent2().isFuncDeclaration().isThis2)
-                escapeByValue(e, er);
-            else if (e.var)
+            if (e.var)
                 er.byref.push(e.var);
         }
 
@@ -1699,13 +1691,6 @@ private void escapeByRef(Expression e, EscapeByResults* er)
                             escapeByValue(dve.e1, er);
                         else if (dve.var.storage_class & STC.ref_ || tf.isref)
                             dve.e1.accept(this);
-                    }
-                    // If it's also a nested function that is 'return ref'
-                    FuncDeclaration fd = dve.var.isFuncDeclaration();
-                    if (fd && fd.isNested())
-                    {
-                        if (tf.isreturn)
-                            er.byexp.push(e);
                     }
                 }
                 // If it's a delegate, check it too

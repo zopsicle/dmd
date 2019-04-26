@@ -86,25 +86,6 @@ private void lambdaSetParent(Expression e, FuncDeclaration fd)
         alias visit = typeof(super).visit;
         FuncDeclaration fd;
 
-        private void setParent(Dsymbol s)
-        {
-            VarDeclaration vd = s.isVarDeclaration();
-            FuncDeclaration pfd = s.parent ? s.parent.isFuncDeclaration() : null;
-            s.parent = fd;
-            if (!vd || !pfd)
-                return;
-            // move to fd's closure when applicable
-            foreach (i; 0 .. pfd.closureVars.dim)
-            {
-                if (vd == pfd.closureVars[i])
-                {
-                    pfd.closureVars.remove(i);
-                    fd.closureVars.push(vd);
-                    break;
-                }
-            }
-        }
-
     public:
         extern (D) this(FuncDeclaration fd)
         {
@@ -117,7 +98,7 @@ private void lambdaSetParent(Expression e, FuncDeclaration fd)
 
         override void visit(DeclarationExp e)
         {
-            setParent(e.declaration);
+            e.declaration.parent = fd;
             e.declaration.accept(this);
         }
 
@@ -126,7 +107,7 @@ private void lambdaSetParent(Expression e, FuncDeclaration fd)
             if (e.lengthVar)
             {
                 //printf("lengthVar\n");
-                setParent(e.lengthVar);
+                e.lengthVar.parent = fd;
                 e.lengthVar.accept(this);
             }
         }
@@ -136,7 +117,7 @@ private void lambdaSetParent(Expression e, FuncDeclaration fd)
             if (e.lengthVar)
             {
                 //printf("lengthVar\n");
-                setParent(e.lengthVar);
+                e.lengthVar.parent = fd;
                 e.lengthVar.accept(this);
             }
         }
@@ -297,7 +278,7 @@ bool ensureStaticLinkTo(Dsymbol s, Dsymbol p)
             if (ad.storage_class & STC.static_)
                 break;
         }
-        s = toParentP(s, p);
+        s = s.toParent2();
     }
     return false;
 }
