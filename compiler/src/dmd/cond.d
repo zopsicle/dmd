@@ -494,14 +494,16 @@ extern (C++) final class StaticForeach : RootObject
  */
 extern (C++) class DVCondition : Condition
 {
+    bool invert;
     uint level;
     Identifier ident;
     Module mod;
 
-    extern (D) this(const ref Loc loc, Module mod, uint level, Identifier ident) @safe
+    extern (D) this(const ref Loc loc, Module mod, bool invert, uint level, Identifier ident) @safe
     {
         super(loc);
         this.mod = mod;
+        this.invert = invert;
         this.level = level;
         this.ident = ident;
     }
@@ -563,9 +565,9 @@ extern (C++) final class DebugCondition : DVCondition
      *           If `null`, this conditiion will use an integer level.
      *  loc = Location in the source file
      */
-    extern (D) this(const ref Loc loc, Module mod, uint level, Identifier ident) @safe
+    extern (D) this(const ref Loc loc, Module mod, bool invert, uint level, Identifier ident) @safe
     {
-        super(loc, mod, level, ident);
+        super(loc, mod, invert, level, ident);
     }
 
     override int include(Scope* sc)
@@ -595,6 +597,12 @@ extern (C++) final class DebugCondition : DVCondition
                 inc = Include.yes;
             if (!definedInModule)
                 printDepsConditional(sc, this, "depsDebug ");
+            if (invert) {
+                if (inc == Include.yes)
+                    inc = Include.no;
+                else if (inc == Include.no)
+                    inc = Include.yes;
+            }
         }
         return (inc == Include.yes);
     }
@@ -842,9 +850,9 @@ extern (C++) final class VersionCondition : DVCondition
      *           If `null`, this conditiion will use an integer level.
      *  loc = Location in the source file
      */
-    extern (D) this(const ref Loc loc, Module mod, uint level, Identifier ident) @safe
+    extern (D) this(const ref Loc loc, Module mod, bool invert, uint level, Identifier ident) @safe
     {
-        super(loc, mod, level, ident);
+        super(loc, mod, invert, level, ident);
     }
 
     override int include(Scope* sc)
@@ -877,6 +885,12 @@ extern (C++) final class VersionCondition : DVCondition
                 (!ident || (!isReserved(ident.toString()) && ident != Id._unittest && ident != Id._assert)))
             {
                 printDepsConditional(sc, this, "depsVersion ");
+            }
+            if (invert) {
+                if (inc == Include.yes)
+                    inc = Include.no;
+                else if (inc == Include.no)
+                    inc = Include.yes;
             }
         }
         return (inc == Include.yes);

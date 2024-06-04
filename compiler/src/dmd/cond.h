@@ -58,6 +58,7 @@ public:
 class DVCondition : public Condition
 {
 public:
+    bool invert;
     unsigned level;
     Identifier *ident;
     Module *mod;

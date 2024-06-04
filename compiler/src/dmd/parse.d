@@ -2281,13 +2281,17 @@ class Parser(AST, Lexer = dmd.lexer.Lexer) : Lexer
     private AST.Condition parseDebugCondition()
     {
         uint level = 1;
+        bool invert;
         Identifier id = null;
         Loc loc = token.loc;
 
         if (token.value == TOK.leftParenthesis)
         {
             nextToken();
-
+            if (token.value == TOK.not) {
+                invert = true;
+                nextToken();
+            }
             if (token.value == TOK.identifier)
                 id = token.ident;
             else if (token.value == TOK.int32Literal || token.value == TOK.int64Literal)
@@ -2304,7 +2308,7 @@ class Parser(AST, Lexer = dmd.lexer.Lexer) : Lexer
             nextToken();
             check(TOK.rightParenthesis);
         }
-        return new AST.DebugCondition(loc, mod, level, id);
+        return new AST.DebugCondition(loc, mod, invert, level, id);
     }
 
     /**************************************
@@ -2341,6 +2345,7 @@ class Parser(AST, Lexer = dmd.lexer.Lexer) : Lexer
     private AST.Condition parseVersionCondition()
     {
         uint level = 1;
+        bool invert;
         Identifier id = null;
         Loc loc;
 
@@ -2353,6 +2358,10 @@ class Parser(AST, Lexer = dmd.lexer.Lexer) : Lexer
              * even though they are keywords
              */
             loc = token.loc;
+            if (token.value == TOK.not) {
+                invert = true;
+                nextToken();
+            }
             if (token.value == TOK.identifier)
                 id = token.ident;
             else if (token.value == TOK.int32Literal || token.value == TOK.int64Literal)
@@ -2374,7 +2383,7 @@ class Parser(AST, Lexer = dmd.lexer.Lexer) : Lexer
         }
         else
             error("(condition) expected following `version`");
-        return new AST.VersionCondition(loc, mod, level, id);
+        return new AST.VersionCondition(loc, mod, invert, level, id);
     }
 
     /***********************************************
